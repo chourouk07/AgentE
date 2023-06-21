@@ -7,6 +7,7 @@ public class CharacterController : MonoBehaviour
     [SerializeField] private Animator _animator;
     [SerializeField] private GameObject _platform;
     private PlatformEffector2D _platformEffector;
+    [SerializeField] private float _resetRot;
     
     public float _jumpHeight= 5f;
 
@@ -43,12 +44,14 @@ public class CharacterController : MonoBehaviour
 
         if (Input.GetButtonDown("Jump") ||Input.GetKeyDown(KeyCode.UpArrow))
         {
-            _platformEffector.rotationalOffset = 0;
+                _platformEffector.rotationalOffset = 0;
                 _animator.SetTrigger("Jumping");
         }
         if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
         {
             _platformEffector.rotationalOffset = 180f;
+            StartCoroutine(ResetRotation());
+
         }
     }
 
@@ -66,6 +69,12 @@ public class CharacterController : MonoBehaviour
         {
             _platform = null;
         }
+    }
+
+    IEnumerator ResetRotation ()
+    {
+        yield return new WaitForSeconds(0.5f);
+        _platformEffector.rotationalOffset = 0;
     }
     public void OnJump() 
     {
