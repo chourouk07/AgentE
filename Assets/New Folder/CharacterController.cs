@@ -5,10 +5,9 @@ public class CharacterController : MonoBehaviour
 {
     [SerializeField] private float _speed = 5f;
     [SerializeField] private Animator _animator;
-    [SerializeField] private LayerMask _groundLayer;
-    [SerializeField] private Transform _groundCheck;
-
-    [SerializeField] private bool _isGrounded;
+    [SerializeField] private GameObject _platform;
+    private PlatformEffector2D _platformEffector;
+    
     public float _jumpHeight= 5f;
 
     
@@ -22,7 +21,6 @@ public class CharacterController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        _isGrounded = Physics2D.OverlapCircle(_groundCheck.position, 0.1f, _groundLayer);
         float _horizontalInput = Input.GetAxis("Horizontal");
         if (_horizontalInput != 0)
         {
@@ -43,14 +41,35 @@ public class CharacterController : MonoBehaviour
             _animator.SetBool("Running", false);
         }
 
-        if (_isGrounded && Input.GetButtonDown("Jump"))
+        if (Input.GetButtonDown("Jump") ||Input.GetKeyDown(KeyCode.UpArrow))
         {
-            _animator.SetTrigger("Jumping");
+            _platformEffector.rotationalOffset = 0;
+                _animator.SetTrigger("Jumping");
+        }
+        if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
+        {
+            _platformEffector.rotationalOffset = 180f;
         }
     }
 
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Platform"))
+        {
+            _platform = collision.gameObject;
+            _platformEffector = _platform.GetComponent<PlatformEffector2D>();
+        }
+    }
+    private void OnCollisionExit(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Platform"))
+        {
+            _platform = null;
+        }
+    }
     public void OnJump() 
     {
+
         _rb.AddForce(new Vector2(0f, _jumpHeight), ForceMode2D.Impulse);
     }
 }
